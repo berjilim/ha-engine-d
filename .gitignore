@@ -5,6 +5,7 @@
 # State files (persisted on /data volume, not in git)
 *.json
 !package.json
+!repository.json
 *.jsonl
 
 # Logs
