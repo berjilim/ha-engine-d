@@ -1,0 +1,19 @@
+# Secrets
+.env
+*.env
+
+# State files (persisted on /data volume, not in git)
+*.json
+!package.json
+*.jsonl
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

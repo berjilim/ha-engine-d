@@ -1,0 +1,13 @@
+{
+  "name": "engine-d",
+  "version": "1.0.0",
+  "description": "Engine D — dual-sided crypto trading bot (paper trading)",
+  "main": "paper_D.js",
+  "scripts": {
+    "start": "node paper_D.js"
+  },
+  "dependencies": {
+    "ccxt": "^4.5.76",
+    "dotenv": "^17.4.2"
+  }
+}

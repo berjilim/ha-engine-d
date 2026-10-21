@@ -1,0 +1,39 @@
+name: "Engine D — Paper Trading Bot"
+version: "1.0.0"
+slug: "engine_d"
+description: "Automated dual-sided crypto trading bot (paper trading). Long side (mediumLong) + short side (sell-the-rip). Runs 24/7 on Home Assistant."
+url: "https://github.com/your-org/ha-engine-d"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: application
+boot: auto
+init: false
+map:
+  - data:rw
+options:
+  binance_api_key: ""
+  binance_secret: ""
+  binance_fut_api_key: ""
+  binance_fut_secret: ""
+  c_start: "1140"
+  c_poll: "60"
+  c_slowlong_enabled: "0"
+  c_long_guard_breadth: "0.70"
+  c_ml_bull_max_pos: "2"
+  c_fs_cd_hours: "6"
+schema:
+  binance_api_key: str
+  binance_secret: password
+  binance_fut_api_key: str
+  binance_fut_secret: password
+  c_start: str
+  c_poll: str
+  c_slowlong_enabled: "list(0|1)"
+  c_long_guard_breadth: str
+  c_ml_bull_max_pos: str
+  c_fs_cd_hours: str
+backup: hot
