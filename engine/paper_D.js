@@ -1039,11 +1039,26 @@ async function runLive() {
 
   let lastPollAt = Date.now();
   let last1hBarTs = null, last1dBarTs = null;
+  let _pollCount = 0;
+  // Log rotation: keep last N lines of jsonl to prevent unbounded growth
+  const LOG_ROTATE_LINES = 2000;
+  function _rotateLog() {
+    try {
+      const lf = engine.ledger.logf();
+      const lines = fs.readFileSync(lf, 'utf8').split('\n');
+      if (lines.length > LOG_ROTATE_LINES + 100) {
+        fs.writeFileSync(lf, lines.slice(-(LOG_ROTATE_LINES)).join('\n'));
+      }
+    } catch {}
+  }
   for (;;) {
     if (Date.now() - lastPollAt > POLL_GAP_MIN * 60e3) {
       engine.ledger.log('MISSED_POLL', { engine: 'D', gapMin: +((Date.now() - lastPollAt) / 60e3).toFixed(1) });
     }
     lastPollAt = Date.now();
+    _pollCount++;
+    // Rotate log every 10 polls
+    if (_pollCount % 10 === 0) _rotateLog();
     try {
       await refresh();
       const next1h = {}, next1d = {};
@@ -1088,10 +1103,21 @@ async function runLive() {
           const h = engine.hist1h[b];
           return h && h.length ? h[h.length - 1][4] : 0;
         });
+        // One-line summary for HA log viewer
+        const _eq = engine.ledger.equity(engine.getPx.bind(engine));
+        const _open = Object.keys(engine.ledger.data.coins).join(',') || 'none';
+        const _reg = engine.regimeInfo();
+        const _dd = engine.ledger.data.peak ? ((engine.ledger.data.peak - _eq) / engine.ledger.data.peak * 100).toFixed(1) : '0.0';
+        console.log(`[POLL] ${new Date().toISOString().slice(0,16).replace('T',' ')} +08 | ${_reg ? _reg.state : '?'} ${_reg ? (_reg.breadth*100).toFixed(0)+'%' : ''} | eq ${_eq.toFixed(2)} | open ${Object.keys(engine.ledger.data.coins).length} (${_open}) | book ${engine.grossBook().toFixed(0)} (${(engine.grossBook()/_eq*100).toFixed(0)}%) | dd ${_dd}%`);
         await new Promise(r => setTimeout(r, POLL * 1000)); continue;
       }
       engine.step({ now: Date.now(), hourly, daily, next1h, next1d });
     } catch (e) { engine.ledger.log('ERR', { msg: e.message }); }
+    const _eq2 = engine.ledger.equity(engine.getPx.bind(engine));
+    const _open2 = Object.keys(engine.ledger.data.coins).join(',') || 'none';
+    const _reg2 = engine.regimeInfo();
+    const _dd2 = engine.ledger.data.peak ? ((engine.ledger.data.peak - _eq2) / engine.ledger.data.peak * 100).toFixed(1) : '0.0';
+    console.log(`[POLL] ${new Date().toISOString().slice(0,16).replace('T',' ')} +08 | ${_reg2 ? _reg2.state : '?'} ${_reg2 ? (_reg2.breadth*100).toFixed(0)+'%' : ''} | eq ${_eq2.toFixed(2)} | open ${Object.keys(engine.ledger.data.coins).length} (${_open2}) | book ${engine.grossBook().toFixed(0)} (${(engine.grossBook()/_eq2*100).toFixed(0)}%) | dd ${_dd2}%`);
     await new Promise(r => setTimeout(r, POLL * 1000));
   }
 }
