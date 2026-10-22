@@ -1,5 +1,5 @@
 name: "Engine D — Paper Trading Bot"
-version: "1.0.0"
+version: "1.0.1"
 slug: "engine_d"
 description: "Automated dual-sided crypto trading bot (paper trading). Long side (mediumLong) + short side (sell-the-rip). Runs 24/7 on Home Assistant."
 url: "https://github.com/your-org/ha-engine-d"
